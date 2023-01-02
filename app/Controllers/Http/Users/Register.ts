@@ -27,9 +27,7 @@ export default class UserRegisterController {
         message.to(email)
         message.from('contato@facebook.com', 'Facebook')
         message.subject('Criação de conta')
-        message.htmlView('emails/verify-email', {
-          link
-        })
+        message.htmlView('emails/verify-email', { link })
       })
     })
   }
@@ -47,16 +45,16 @@ export default class UserRegisterController {
 
     const userKey = await UserKey.findByOrFail('key', key)
 
-    const user = await userKey.related('user').query().firstOrFail()
+    await userKey.load('user')
 
-    const username = name.split(' ')[0].toLowerCase() + uuid()
+    const username = name.split(' ')[0].toLocaleLowerCase() + new Date().getTime()
 
-    user.merge({ name, password, username })
+    userKey.user.merge({ name, password, username })
 
-    await user.save()
+    await userKey.user.save()
 
     await userKey.delete()
 
-    return response.ok({ message: 'Ok!' })
+    return response.ok({ message: 'Ok' })
   }
 }
