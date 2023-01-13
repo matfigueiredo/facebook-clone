@@ -1,7 +1,7 @@
 # facebook-clone
 This is a big project for me, I'm building facebook backend and frontend
 
-#Technologies
+# Technologies
 
-##Adonis JS
-##MySQL (Docker image)
+## Adonis JS
+## MySQL (Docker image)
