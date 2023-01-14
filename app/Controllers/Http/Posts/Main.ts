@@ -1,6 +1,8 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { StoreValidator, UpdateValidator } from 'App/Validators/Post/Main'
 import { User, Post } from 'App/Models'
+import Application from '@ioc:Adonis/Core/Application'
+import fs from 'fs'
 
 export default class PostsController {
   public async index({ request, auth }: HttpContextContract) {
@@ -38,5 +40,21 @@ export default class PostsController {
     return post
   }
 
-  public async destroy({}: HttpContextContract) {}
+  public async destroy({ response, params, auth }: HttpContextContract) {
+    const post = await Post.findOrFail(params.id)
+
+    if (auth.user!.id !== post.userId) {
+      return response.unauthorized()
+    }
+
+    await post.load('media')
+
+    if (post.media) {
+      fs.unlinkSync(Application.tmpPath('uploads', post.media.fileName))
+
+      await post.media.delete()
+    }
+
+    await post.delete()
+  }
 }
